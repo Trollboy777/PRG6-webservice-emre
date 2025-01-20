@@ -32,14 +32,7 @@ app.use((req, res, next) => {
     }
 });
 
-// app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader(
-//         'Access-Control-Allow-Headers',
-//         'Origin, Content-Type, Accept, Authorization'
-//     );
-//     next();
-// });
+
 
 app.use((req, res, next)=> {
     const acceptHeader = req.headers.accept;
