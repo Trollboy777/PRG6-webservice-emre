@@ -1,20 +1,53 @@
 import express, {request, response, Router} from "express";
 import {faker} from "@faker-js/faker";
 import Pokemon from "../Models/Pokemon.js";
+import {parse} from "dotenv";
 
 const router = express.Router();
 const baseUrl = process.env.BASE_URL;
 router.get('/', async (req, res) => {
     try {
-        const mons = await Pokemon.find({});
+        // const mons = await Pokemon.find({});
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+        const mons = await Pokemon.find().skip(skip).limit(limit);
+        console.log(mons.length + "Dit is de lengte")
+
+        const totalItems = await Pokemon.countDocuments();
+        const totalPages = Math.ceil(totalItems/limit);
+
         res.status(200).json({
             "items": mons,
             "_links": {
                 "self": {
-                    "href": `${baseUrl}/pokemons/`
+                    "href": `${process.env.BASE_URL}/pokemons/`
                 },
                 "collection": {
-                    "href": `${baseUrl}/pokemons/`
+                    "href": `${process.env.BASE_URL}/pokemons/`
+                }
+            },
+            "pagination": {
+                "currentPage": page,
+                "currentItems": mons.length,
+                "totalPages": totalPages,
+                "_links": {
+                    "first": {
+                        "page": 1,
+                        "href": `${process.env.BASE_URL}/pokemons?page=1&limit=${limit}`
+                    },
+                    "last": {
+                        "page": totalPages,
+                        "href": `${process.env.BASE_URL}/pokemons?${totalPages}=1&limit=${limit}`
+                    },
+                    "previous": page > 1 ? {
+                        "page": page - 1,
+                        "href": `${process.env.BASE_URL}/pokemons?page=${page - 1}&limit=${limit}`
+                    } : null,
+                    "next": page < totalPages ? {
+                        "page": page + 1,
+                        "href": `${process.env.BASE_URL}/pokemons?page=${page + 1}&limit=${limit}`
+                    } : null
                 }
             }
         })

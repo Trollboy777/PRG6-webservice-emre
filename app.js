@@ -14,17 +14,17 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*'); // Toegestaan voor alle origins, maar je kunt hier een specifieke origin opgeven
+    res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader(
         'Access-Control-Allow-Headers',
         'Origin, Content-Type, Accept, Authorization'
-    ); // Specificeer toegestane headers
+    );
     res.setHeader(
         'Access-Control-Allow-Methods',
         'GET, POST, PUT, DELETE, OPTIONS'
-    ); // Specificeer toegestane HTTP-methoden
+    );
 
-    // Indien het een preflight OPTIONS-verzoek is, direct een 204-respons teruggeven
+
     if (req.method === 'OPTIONS') {
         res.status(204).end();
     } else {
