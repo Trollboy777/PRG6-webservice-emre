@@ -10,27 +10,12 @@ mongoose.connect('mongodb://127.0.0.1:27017/PRG6-Eindopdracht');
 const port = 8001
 
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use('/', (req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*')
+    res.setHeader('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept, Authorization')
 
-app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader(
-        'Access-Control-Allow-Headers',
-        'Origin, Content-Type, Accept, Authorization'
-    );
-    res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, OPTIONS'
-    );
-
-
-    if (req.method === 'OPTIONS') {
-        res.status(204).end();
-    } else {
-        next();
-    }
-});
+    next();
+})
 
 
 
@@ -38,18 +23,19 @@ app.use((req, res, next)=> {
     const acceptHeader = req.headers.accept;
     console.log('headers', req.headers)
 
-    if (acceptHeader !== 'application/json') {
+    if (acceptHeader !== 'application/json' && req.method !== 'OPTIONS') {
         console.log("JSON NOT INCLUDED", acceptHeader)
         return res.status(406).json({ error: "Only JSON is accepted" });
     }    else {
         console.log("JSON INCLUDED", acceptHeader)
+        next()
 
     }
-    next()
+
 })
 
-// app.use(express.json());
-// app.use(express.urlencoded({extended: true}));
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 
 app.use('/pokemons', pokemons)

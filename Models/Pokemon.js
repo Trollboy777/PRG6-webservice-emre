@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const ChessSchema = new mongoose.Schema({
+const PokemonSchema = new mongoose.Schema({
     name: {type: String, required: true},
     typing: {type: String, required: true},
     region: {type: String, required: true},
@@ -14,7 +14,7 @@ const ChessSchema = new mongoose.Schema({
             const baseUrl = process.env.BASE_URL;
             ret._links = {
                 self: {
-                    href: `${baseUrl}/pokemon/${ret._id}`
+                    href: `${baseUrl}/pokemons/${ret._id}`
                 },
                 collection: {
                     href: `${baseUrl}/pokemons/`
@@ -27,6 +27,5 @@ const ChessSchema = new mongoose.Schema({
     }
 });
 
-const Pokemon = mongoose.model('Pokemon', ChessSchema);
+export default mongoose.model('Pokemon', PokemonSchema);
 
-export default Pokemon;

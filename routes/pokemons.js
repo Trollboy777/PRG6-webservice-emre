@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
     try {
         // const mons = await Pokemon.find({});
         const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || 100;
         const skip = (page - 1) * limit;
         const mons = await Pokemon.find().skip(skip).limit(limit);
         console.log(mons.length + "Dit is de lengte")
@@ -63,13 +63,10 @@ router.get('/:id', async (req, res) => {
         const pokeId = req.params.id;
         const pokemon = await Pokemon.findById(pokeId);
 
-        if (pokemon) {
-            res.status(200).json(pokemon);
+        if (!pokemon) {
+           return res.status(404).json({error: "Pokemon not found"})
         }
-        else {
-            res.status(404).json({ error: "Pokemon not found" });
-        }
-
+           res.status(200).send(pokemon)
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
@@ -98,11 +95,16 @@ router.post('/seed', async (req, res)=> {try {
 );
 router.post('/', async (req, res) => {
     try {
+        const { name, typing, region } = req.body;
+        if (!name || !typing || !region) {
+            return res.status(400).json({
+                success: false,
+                error: 'Fields "name", "typing", and "region" are required and cannot be empty.',
+            });
+        }
 
-        const { name, typing, region, imageUrl } = req.body;
-        const newMon = await Pokemon.create({ name, typing, region, imageUrl });
-
-        res.status(201).json({ success: true, data: newMon });
+        const mon = await Pokemon.create({ name, typing, region });
+        res.status(201).json({ success: true, data: mon });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
@@ -115,7 +117,7 @@ router.delete('/:id', async (req, res) => {
         const result = await Pokemon.findByIdAndDelete(pokeId);
 
         if (result) {
-            res.status(200).json({ success: true, message: "Pokemon deleted successfully." });
+            res.status(204).json({ success: true, message: "Pokemon deleted successfully." });
         }
         else {
             res.status(404).json({ error: "Pokemon not found" });
@@ -131,7 +133,7 @@ router.put('/:id', async (req, res) => {
         const pokeId = req.params.id;
         const result = await Pokemon.findByIdAndUpdate(pokeId,
             {name, typing, region, imageUrl},
-            {new:true});
+            {new:true, runValidators:true});
 
         if (result) {
             res.status(201).json({ success: true, data: result });
@@ -144,15 +146,16 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-router.options('/:id', (req, res) =>{
-    res.setHeader('Allow', 'GET, PUT,DELETE')
-    res.setHeader('Access-Control-Allow-Method', ['GET, PUT, DELETE'])
-    res.send();
-})
-router.options('/', (req, res) =>{
-    res.setHeader('GET', 'POST')
-    res.setHeader('Access-Control-Allow-Method', ['GET', 'POST'])
-    res.send();
-})
+router.options('/:id', (req, res) => {
+    res.setHeader('Allow', 'GET, PUT, DELETE, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', ['GET', 'PUT', 'DELETE', 'OPTIONS']);
+    res.status(204).send();
+});
+router.options('/', (req, res) => {
+    res.setHeader('Allow', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Methods', ['GET', 'POST', 'OPTIONS']);
+    res.status(204).send();
+});
+
 
 export default router;
