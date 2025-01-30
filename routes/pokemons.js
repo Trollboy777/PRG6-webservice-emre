@@ -1039,7 +1039,8 @@ router.get('/', async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 100;
         const skip = (page - 1) * limit;
-        const mons = await Pokemon.find().skip(skip).limit(limit);
+
+        const mons = await Pokemon.find({}).skip(skip).limit(limit);
         console.log(mons.length + "Dit is de lengte")
 
         const totalItems = await Pokemon.countDocuments();
@@ -1052,13 +1053,14 @@ router.get('/', async (req, res) => {
                     "href": `${process.env.BASE_URL}/pokemons/`
                 },
                 "collection": {
-                    "href": `${process.env.BASE_URL}/pokemons/`
+                    "href": `${process.env.BASE_URL}`
                 }
             },
             "pagination": {
                 "currentPage": page,
                 "currentItems": mons.length,
                 "totalPages": totalPages,
+                "totalItems": totalItems,
                 "_links": {
                     "first": {
                         "page": 1,
@@ -1066,7 +1068,7 @@ router.get('/', async (req, res) => {
                     },
                     "last": {
                         "page": totalPages,
-                        "href": `${process.env.BASE_URL}/pokemons?${totalPages}=1&limit=${limit}`
+                        "href": `${process.env.BASE_URL}/pokemons?page=${totalPages}&limit=${limit}`
                     },
                     "previous": page > 1 ? {
                         "page": page - 1,
